@@ -160,11 +160,10 @@ class Dataset:
                 1: 1
             }
 
-
 def get_inputs():
     cnp = st.text_input("CNP")
     gender = st.selectbox("Gender", ['M', 'F'])
-    age = st.number_input("Age")
+    age = st.slider("Age", min_value=18, max_value=120)
 
     number = st.text_input("Number")
     produs = st.selectbox("Product", ['Penguin', 'Dolphin', 'Crab'])
@@ -296,23 +295,24 @@ def process_input(dataframe, ds):
 
 
 def main():
-    model_dataset = Dataset('./data.xlsx')
-    model = load_model('./model.h5')
-
-    model_dataset.preprocess(normalize=False)
-
     st.title('FinTech Lab')
 
+    df = None
     df = get_inputs()
-    df = process_input(df, model_dataset.df.drop(columns=['ClientCategory']))
-    df = df.reindex(columns=model_dataset.df.columns)
-    df = df.drop(columns=['ClientCategory'])
-    df
-    
-    
-    prediction = model.predict(df.values)[0]
-    
-    st.write(f'Prediction: {"Risky client" if prediction[0] >= .6 else "Not risky client"}')
+
+    if df is not None:
+        model_dataset = Dataset('./data.xlsx')
+        model = load_model('./model.h5')
+
+        model_dataset.preprocess(normalize=False)
+
+        df = process_input(df, model_dataset.df.drop(columns=['ClientCategory']))
+        df = df.reindex(columns=model_dataset.df.columns)
+        df = df.drop(columns=['ClientCategory'])
+
+        prediction = model.predict(df.values)[0]
+        
+        st.write(f'Prediction: {"Risky client" if prediction[0] >= .6 else "Not risky client"}')
     
 
 if __name__ == '__main__':    
