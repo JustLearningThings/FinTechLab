@@ -161,6 +161,9 @@ class Dataset:
             }
 
 def get_inputs():
+    EPS = .1**(8)
+
+
     cnp = st.text_input("CNP")
     gender = st.selectbox("Gender", ['M', 'F'])
     age = st.slider("Age", min_value=18, max_value=120)
@@ -242,10 +245,8 @@ def get_inputs():
         dataframe['Product_Penguin'] = [0.]
         dataframe['Product_Crab'] = [1.]
     
-    dataframe['IncomeToCreditLimit'] = ANAFIncome / credit_limit
-    dataframe['TotalLoanPaymentsToIncome'] = tlp / DeclIncome
-    
-    EPS = .1**(8)
+    dataframe['IncomeToCreditLimit'] = ANAFIncome / (credit_limit + EPS) 
+    dataframe['TotalLoanPaymentsToIncome'] = tlp / (DeclIncome + EPS)
 
     if paid == 0:
         paid = EPS
@@ -281,13 +282,6 @@ def process_input(dataframe, ds):
     std = pd.DataFrame(ds.std()).T
     mean = pd.DataFrame(ds.mean()).T
 
-    print('======================================================')
-    print(ds['ProbabilityOfModel'])
-    print(((dataframe - mean) / std)['ProbabilityOfModel'])
-    print(dataframe['ProbabilityOfModel'])
-    print(std['ProbabilityOfModel'])
-    print(mean['ProbabilityOfModel'])
-
     dataframe = (dataframe - mean) / std
     dataframe['ProbabilityOfModel'] = ds['ProbabilityOfModel']
 
@@ -312,7 +306,7 @@ def main():
 
         prediction = model.predict(df.values)[0]
         
-        st.write(f'Prediction: {"Risky client" if prediction[0] >= .6 else "Not risky client"}')
+        st.write(f'Prediction: {"Risky client" if prediction[0] >= .55 else "Not risky client"}')
     
 
 if __name__ == '__main__':    
